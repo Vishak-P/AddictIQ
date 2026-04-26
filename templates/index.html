@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AddictIQ — Social Media Addiction Predictor</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ░░░ BACKGROUND GRID ░░░ -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <!-- ░░░ HEADER ░░░ -->
+  <header class="site-header">
+    <div class="container-fluid px-4 px-md-5">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="brand">
+          <span class="brand-icon">⬡</span>
+          <span class="brand-name">AddictIQ</span>
+        </div>
+        <nav class="header-nav d-none d-md-flex gap-4">
+          <a href="#predict-section">Predict</a>
+          <a href="#metrics-section">Models</a>
+          <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+        <button class="hamburger d-md-none" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAV DRAWER -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="#predict-section" onclick="closeMobileNav()">Predict</a>
+    <a href="#metrics-section" onclick="closeMobileNav()">Models</a>
+    <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+
+  <!-- ░░░ HERO ░░░ -->
+  <section class="hero-section">
+    <div class="container-fluid px-4 px-md-5">
+      <h1 class="hero-title">
+        Are You<br />
+        <span class="hero-accent">Hooked?</span>
+      </h1>
+      <p class="hero-sub">
+        Enter your daily digital behaviour. Our ensemble ML model analyses
+        usage patterns and predicts social media addiction risk in real time.
+      </p>
+
+    </div>
+  </section>
+
+  <!-- ░░░ MAIN CONTENT ░░░ -->
+  <main class="container-fluid px-4 px-md-5 pb-5">
+    <div class="row g-5 align-items-start">
+
+      <!-- LEFT: FORM -->
+      <div class="col-lg-6" id="predict-section">
+        <div class="card-glass">
+          <div class="card-glass-header">
+            <span class="card-dot dot-green"></span>
+            <span class="card-dot dot-yellow"></span>
+            <span class="card-dot dot-red"></span>
+            <span class="card-title-small ms-2">Behaviour Input</span>
+          </div>
+
+          <form id="predict-form" novalidate>
+            <!-- Age -->
+            <div class="field-group">
+              <label for="Age" class="field-label">
+                Age
+                <span class="field-unit">years</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="Age"
+                  name="Age"
+                  class="field-input"
+                  min="1" max="100" step="1"
+                  placeholder="e.g. 22"
+                  required
+                />
+                <div class="input-icon"></div>
+              </div>
+              <div class="field-hint">Your current age</div>
+            </div>
+
+            <!-- Daily Usage Hours -->
+            <div class="field-group">
+              <label for="Daily_Usage_Hours" class="field-label">
+                Daily Social Media Usage
+                <span class="field-unit">hours / day</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="Daily_Usage_Hours"
+                  name="Daily_Usage_Hours"
+                  class="field-input"
+                  min="0" max="24" step="0.1"
+                  placeholder="e.g. 6.5"
+                  required
+                />
+                <div class="input-icon"></div>
+              </div>
+              <div class="field-hint">Average hours spent on social platforms</div>
+            </div>
+
+            <!-- Social Media Apps -->
+            <div class="field-group">
+              <label for="Social_Media_Apps" class="field-label">
+                Social Media Apps Used
+                <span class="field-unit">count</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="Social_Media_Apps"
+                  name="Social_Media_Apps"
+                  class="field-input"
+                  min="0" max="100" step="1"
+                  placeholder="e.g. 5"
+                  required
+                />
+                <div class="input-icon"></div>
+              </div>
+              <div class="field-hint">Number of social media apps used daily</div>
+            </div>
+
+            <!-- Screen Time -->
+            <div class="field-group">
+              <label for="Screen_Time" class="field-label">
+                Total Screen Time
+                <span class="field-unit">hours / day</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="Screen_Time"
+                  name="Screen_Time"
+                  class="field-input"
+                  min="0" max="24" step="0.1"
+                  placeholder="e.g. 9.0"
+                  required
+                />
+                <div class="input-icon"></div>
+              </div>
+              <div class="field-hint">All device screen time combined</div>
+            </div>
+
+            <!-- Sleep Hours -->
+            <div class="field-group">
+              <label for="Sleep_Hours" class="field-label">
+                Sleep Duration
+                <span class="field-unit">hours / night</span>
+              </label>
+              <div class="input-wrapper">
+                <input
+                  type="number"
+                  id="Sleep_Hours"
+                  name="Sleep_Hours"
+                  class="field-input"
+                  min="0" max="24" step="0.1"
+                  placeholder="e.g. 6.0"
+                  required
+                />
+                <div class="input-icon"></div>
+              </div>
+              <div class="field-hint">Average nightly sleep</div>
+            </div>
+
+            <button type="submit" class="predict-btn" id="predict-btn">
+              <span class="btn-label">Analyse Behaviour</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </form>
+
+          <!-- RESULT PANEL -->
+          <div id="result-panel" class="result-panel d-none">
+            <div class="result-divider"></div>
+            <div class="result-inner" id="result-inner">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: METRICS CHART -->
+      <div class="col-lg-6" id="metrics-section">
+        <div class="card-glass">
+          <div class="card-glass-header">
+            <span class="card-dot dot-green"></span>
+            <span class="card-dot dot-yellow"></span>
+            <span class="card-dot dot-red"></span>
+            <span class="card-title-small ms-2">Model Comparison</span>
+          </div>
+
+          <div class="chart-area">
+            <canvas id="accuracy-chart"></canvas>
+          </div>
+
+          <div id="model-table" class="model-table mt-4">
+            <!-- Injected by JS -->
+          </div>
+
+          <div class="best-model-badge" id="best-badge" style="display:none">
+            <span class="badge-label">Best Model</span>
+            <span class="badge-name" id="best-badge-name">—</span>
+          </div>
+        </div>
+
+        <!-- INFO CARDS -->
+        <div class="row g-3 mt-2">
+          <div class="col-6">
+            <div class="info-card">
+              <div class="info-icon"></div>
+              <div class="info-text">
+                <div class="info-value" id="stat-best-acc">—</div>
+                <div class="info-label">Best Accuracy</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="info-card">
+              <div class="info-icon"></div>
+              <div class="info-text">
+                <div class="info-value">3</div>
+                <div class="info-label">Models Trained</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="info-card">
+              <div class="info-icon"></div>
+              <div class="info-text">
+                <div class="info-value">5</div>
+                <div class="info-label">Feature Inputs</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="info-card">
+              <div class="info-icon"></div>
+              <div class="info-text">
+                <div class="info-value">CI/CD</div>
+                <div class="info-label">Auto-Deployed</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.row -->
+
+    <!-- HISTORY TABLE -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card-glass">
+          <div class="card-glass-header">
+            <span class="card-dot dot-green"></span>
+            <span class="card-dot dot-yellow"></span>
+            <span class="card-dot dot-red"></span>
+            <span class="card-title-small ms-2">Prediction History</span>
+          </div>
+          <div class="table-responsive">
+            <table class="model-table" id="history-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Age</th>
+                  <th>Usage Hrs</th>
+                  <th>Apps</th>
+                  <th>Screen Hrs</th>
+                  <th>Sleep Hrs</th>
+                  <th>Prediction</th>
+                  <th>Confidence</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="history-body">
+                <tr><td colspan="9" style="text-align:center;color:var(--text-dim)">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ░░░ FOOTER ░░░ -->
+  <footer class="site-footer">
+    <div class="container-fluid px-4 px-md-5">
+      <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+        <div class="footer-brand">AddictIQ <span class="footer-sep">·</span> Addiction Predictor</div>
+        <div class="footer-stack">
+          Python · scikit-learn · Flask · Bootstrap · GitHub Actions · Render
+        </div>
+       
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

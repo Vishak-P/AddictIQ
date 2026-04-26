@@ -1,0 +1,19 @@
+# ─────────────────────────────────────────────
+# requirements.txt — AddictIQ
+# Social Media Addiction Predictor
+# ─────────────────────────────────────────────
+
+# Web framework
+flask>=3.0.3
+
+# ML core
+scikit-learn>=1.5.0
+numpy>=2.0.0
+pandas>=2.2.2
+
+# Database
+mysql-connector-python>=8.2.0
+python-dotenv>=1.0.0
+
+# Utilities
+gunicorn>=22.0.0       # Production WSGI server (Render)

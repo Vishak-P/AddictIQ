@@ -1,0 +1,138 @@
+{
+  "best_model": "Random Forest",
+  "model_results": {
+    "Logistic Regression": {
+      "accuracy": 0.82,
+      "cv_mean": 0.824,
+      "cv_std": 0.0282,
+      "confusion_matrix": [
+        [
+          83,
+          16
+        ],
+        [
+          20,
+          81
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 0.8058252427184466,
+          "recall": 0.8383838383838383,
+          "f1-score": 0.8217821782178217,
+          "support": 99.0
+        },
+        "1": {
+          "precision": 0.8350515463917526,
+          "recall": 0.801980198019802,
+          "f1-score": 0.8181818181818182,
+          "support": 101.0
+        },
+        "accuracy": 0.82,
+        "macro avg": {
+          "precision": 0.8204383945550996,
+          "recall": 0.8201820182018202,
+          "f1-score": 0.81998199819982,
+          "support": 200.0
+        },
+        "weighted avg": {
+          "precision": 0.8205845260734661,
+          "recall": 0.82,
+          "f1-score": 0.81996399639964,
+          "support": 200.0
+        }
+      }
+    },
+    "Random Forest": {
+      "accuracy": 0.885,
+      "cv_mean": 0.881,
+      "cv_std": 0.0146,
+      "confusion_matrix": [
+        [
+          88,
+          11
+        ],
+        [
+          12,
+          89
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 0.88,
+          "recall": 0.8888888888888888,
+          "f1-score": 0.8844221105527639,
+          "support": 99.0
+        },
+        "1": {
+          "precision": 0.89,
+          "recall": 0.8811881188118812,
+          "f1-score": 0.8855721393034826,
+          "support": 101.0
+        },
+        "accuracy": 0.885,
+        "macro avg": {
+          "precision": 0.885,
+          "recall": 0.885038503850385,
+          "f1-score": 0.8849971249281232,
+          "support": 200.0
+        },
+        "weighted avg": {
+          "precision": 0.88505,
+          "recall": 0.885,
+          "f1-score": 0.8850028750718768,
+          "support": 200.0
+        }
+      }
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.865,
+      "cv_mean": 0.853,
+      "cv_std": 0.006,
+      "confusion_matrix": [
+        [
+          87,
+          12
+        ],
+        [
+          15,
+          86
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 0.8529411764705882,
+          "recall": 0.8787878787878788,
+          "f1-score": 0.8656716417910447,
+          "support": 99.0
+        },
+        "1": {
+          "precision": 0.8775510204081632,
+          "recall": 0.8514851485148515,
+          "f1-score": 0.864321608040201,
+          "support": 101.0
+        },
+        "accuracy": 0.865,
+        "macro avg": {
+          "precision": 0.8652460984393757,
+          "recall": 0.8651365136513651,
+          "f1-score": 0.8649966249156229,
+          "support": 200.0
+        },
+        "weighted avg": {
+          "precision": 0.8653691476590636,
+          "recall": 0.865,
+          "f1-score": 0.8649898747468686,
+          "support": 200.0
+        }
+      }
+    }
+  },
+  "features": [
+    "Age",
+    "Daily_Usage_Hours",
+    "Social_Media_Apps",
+    "Screen_Time",
+    "Sleep_Hours"
+  ]
+}
