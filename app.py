@@ -180,13 +180,16 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=["GET", "POST"])
 def predict():
     """
-    POST /predict
-    Accepts JSON or form data with feature values.
-    Returns prediction label + probability.
+    GET  /predict → friendly message
+    POST /predict → run prediction
     """
+    if request.method == "GET":
+        return jsonify({
+            "message": "Use POST with JSON body: {Age, Daily_Usage_Hours, Social_Media_Apps, Screen_Time, Sleep_Hours}"
+        }), 200
     try:
         # Accept JSON body or form data
         if request.is_json:
