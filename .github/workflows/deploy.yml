@@ -1,0 +1,167 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .github/workflows/deploy.yml
+# AddictIQ — Social Media Addiction Predictor
+# CI/CD Pipeline using GitHub Actions → Render
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI/CD — Train, Test & Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  ci:
+    name: Train · Evaluate · Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint Python Files
+        run: |
+          pip install pyflakes
+          python -m pyflakes train_model.py app.py
+
+      - name: Train ML Model
+        run: python train_model.py
+
+      - name: Verify model.pkl is Created
+        run: |
+          if [ ! -f "model.pkl" ]; then
+            echo "ERROR: model.pkl was not created!"
+            exit 1
+          fi
+          echo "model.pkl found ($(wc -c < model.pkl) bytes)"
+
+      - name: Verify metrics.json is Created
+        run: |
+          if [ ! -f "metrics.json" ]; then
+            echo "ERROR: metrics.json was not created!"
+            exit 1
+          fi
+          echo "metrics.json content:"
+          python -c "
+          import json
+          with open('metrics.json') as f:
+              m = json.load(f)
+          print('Best model:', m['best_model'])
+          for name, r in m['model_results'].items():
+              print(f\"  {name}: accuracy={r['accuracy']:.4f}\")
+          "
+
+      - name: Flask App Health Check
+        run: |
+          FLASK_DEBUG=false python app.py &
+          APP_PID=$!
+
+          cleanup() {
+            kill $APP_PID >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          for _ in 1 2 3 4 5; do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health || true)
+            if [ "$HTTP_STATUS" = "200" ]; then
+              break
+            fi
+            sleep 2
+          done
+
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Health check FAILED — HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+          PREDICT_STATUS=$(curl -s -o /tmp/pred.json -w "%{http_code}" \
+            -X POST http://localhost:5000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"Age":22,"Daily_Usage_Hours":7,"Social_Media_Apps":5,"Screen_Time":9,"Sleep_Hours":6}')
+          echo "Predict response:"
+          cat /tmp/pred.json
+
+          METRICS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/metrics)
+          echo "Metrics endpoint — HTTP $METRICS_STATUS"
+
+          if [ "$PREDICT_STATUS" != "200" ]; then
+            echo "Predict endpoint FAILED — HTTP $PREDICT_STATUS"
+            exit 1
+          fi
+
+          echo "All endpoint checks PASSED"
+
+      - name: Upload Artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-artefacts
+          path: |
+            model.pkl
+            metrics.json
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: model-artefacts
+
+      - name: Trigger Render Deployment
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          echo "Triggering deployment on Render service $RENDER_SERVICE_ID ..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache": false}')
+
+          HTTP_STATUS=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "Response: $BODY"
+          echo "HTTP Status: $HTTP_STATUS"
+
+          if [ "$HTTP_STATUS" != "201" ]; then
+            echo "Render deploy trigger FAILED — HTTP $HTTP_STATUS"
+            exit 1
+          fi
+
+          echo "Render deployment triggered successfully!"
+
+      - name: Deployment Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  AddictIQ — Deployment Complete"
+          echo "  Branch : main"
+          echo "  Commit : ${{ github.sha }}"
+          echo "  Actor  : ${{ github.actor }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

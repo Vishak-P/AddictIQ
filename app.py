@@ -284,6 +284,27 @@ def health():
     return jsonify({"status": "ok", "service": "addiction-predictor"}), 200
 
 
+@app.route("/db-check", methods=["GET"])
+def db_check():
+    """Check MySQL connectivity."""
+    try:
+        conn = get_db()
+        cur  = conn.cursor()
+        cur.execute("SELECT DATABASE(), VERSION()")
+        db_name, version = cur.fetchone()
+        cur.close()
+        conn.close()
+        return jsonify({
+            "status":   "connected",
+            "database": db_name,
+            "version":  version,
+            "host":     DB_CONFIG["host"],
+            "port":     DB_CONFIG["port"],
+        }), 200
+    except Error as e:
+        return jsonify({"status": "error", "error": str(e)}), 503
+
+
 # ──────────────────────────────────────────────
 # ENTRY POINT
 # ──────────────────────────────────────────────
